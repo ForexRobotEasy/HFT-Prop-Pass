@@ -1,0 +1,97 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                        HFT Prop Pass            |
+//|                Developed by Forex Robot Easy Team                 |
+//|                         www.forexroboteasy.com                    |
+//+------------------------------------------------------------------+
+#property strict
+
+// Define input parameters
+input double riskPercentage = 2.0; // Risk percentage per trade
+input double stopLossPips = 10; // Stop loss in pips
+input double takeProfitPips = 20; // Take profit in pips
+
+// Define global variables
+double lotSize;
+double accountBalance;
+double riskAmount;
+
+//+------------------------------------------------------------------+
+//| Custom indicator function                                        |
+//+------------------------------------------------------------------+
+int CustomIndicator()
+{
+    // Add your custom indicator logic here
+    return 0;
+}
+
+//+------------------------------------------------------------------+
+//| Expert Advisor initialization function                           |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+    // Calculate lot size based on risk percentage
+    accountBalance = AccountBalance();
+    riskAmount = accountBalance * riskPercentage / 100;
+    lotSize = riskAmount / stopLossPips / MarketInfo(Symbol(), MODE_TICKVALUE);
+
+    return INIT_SUCCEEDED;
+}
+
+//+------------------------------------------------------------------+
+//| Expert Advisor start function                                     |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+    // Perform market analysis
+    if (CustomIndicator() == 1)
+    {
+        // Open buy trade
+        double entryPrice = Ask;
+        double stopLossPrice = entryPrice - stopLossPips * Point;
+        double takeProfitPrice = entryPrice + takeProfitPips * Point;
+        int ticket = OrderSend(Symbol(), OP_BUY, lotSize, entryPrice, 0, stopLossPrice, takeProfitPrice, 'HFT Prop Pass', 0, 0, clrBlue);
+        
+        if (ticket > 0)
+        {
+            Print('Buy trade opened at price ', entryPrice);
+        }
+        else
+        {
+            Print('Failed to open buy trade');
+        }
+    }
+    else if (CustomIndicator() == -1)
+    {
+        // Open sell trade
+        double entryPrice = Bid;
+        double stopLossPrice = entryPrice + stopLossPips * Point;
+        double takeProfitPrice = entryPrice - takeProfitPips * Point;
+        int ticket = OrderSend(Symbol(), OP_SELL, lotSize, entryPrice, 0, stopLossPrice, takeProfitPrice, 'HFT Prop Pass', 0, 0, clrRed);
+        
+        if (ticket > 0)
+        {
+            Print('Sell trade opened at price ', entryPrice);
+        }
+        else
+        {
+            Print('Failed to open sell trade');
+        }
+    }
+}
+
+//+------------------------------------------------------------------+
+//| Expert Advisor deinitialization function                         |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+    // Add any necessary cleanup code here
+}
+
+//+------------------------------------------------------------------+
+//| Expert Advisor stop function                                      |
+//+------------------------------------------------------------------+
+void OnStop()
+{
+    // Add any necessary stop code here
+}
